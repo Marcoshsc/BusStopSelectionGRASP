@@ -6,16 +6,15 @@ def generateRandomData(nStudents, maxWalk, nReachablePoints, minDistance, maxDis
 
     rp = [[minDistance + (maxDistance - minDistance) * random()
            for i in range(nStudents)] for j in range(nReachablePoints)]
-    for r in rp:
-        r.append(maxWalk)
     data = {
         'nStudents': nStudents,
         'rp': rp,
         'maxWalk': maxWalk
     }
+    # print(rp[0])
 
     with open('data.json', 'w') as jsonF:
         json.dump(data, jsonF)
 
 
-generateRandomData(1000, 400, 100, 0, 3000)
+generateRandomData(1000, 100, 500, 0, 20000)

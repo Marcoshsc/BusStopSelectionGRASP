@@ -1,5 +1,6 @@
 import json
 import random
+from graficos import grafico_distancia, grafico_pontos
 
 
 def getLC(nStudents, rp, maxWalk):
@@ -105,6 +106,29 @@ def improve(solution, rp, maxWalk):
                         changed = True
         cont = changed
 
+def improveHouse(solution, rp, maxWalk):
+    cont = True
+    while(cont):
+        changed = False
+        for i in range(len(solution)):
+            s = solution[i]
+            student = s[0]
+            bs = s[1]
+            for j in range(len(solution)):
+                if i == j or solution[j][1] == 'house':
+                    continue
+                innerS = solution[j]
+                innerBs = innerS[1]
+                if bs == 'house':
+                    if rp[innerBs][student] < maxWalk:
+                        s[1] = innerBs
+                        changed = True
+                else:
+                    if rp[innerBs][student] < rp[bs][student]:
+                        s[1] = innerBs
+                        changed = True
+        cont = changed
+
 def improveReduceBusStops(solution, rp, maxWalk):
     busStops = set()
     busStopStudents = {}
@@ -152,10 +176,10 @@ def walkMean(rp, solution):
     mean = 0
     for s in solution:
         mean += rp[s[1]][s[0]] if s[1] != 'house' else 0
-    return mean / len(rp)
+    return mean / len(solution)
 
 
-def grasp(alpha, nIter):
+def grasp(alpha, nIter, nomeGraficoDistancia, nomeGraficoPontos):
     data = {}
 
     with open('data.json', 'r') as jsonF:
@@ -167,7 +191,7 @@ def grasp(alpha, nIter):
 
     # print(lc)
     # print(reachabilities)
- 
+    historic = []
     best = None
     for counter in range(nIter):
         lc, reachabilities, studentReachabilities = getLC(
@@ -199,8 +223,12 @@ def grasp(alpha, nIter):
             elif solutionBs == bestBs:
                 if walkMean(rp, solution) < walkMean(rp, best):
                     best = solution
+        historic.append(best)
         print(f'Finished iteration {counter + 1} with best of {numberOfBusStops(best)} and avg walk {walkMean(rp, best)}.')
     print(f'Best: {numberOfBusStops(best)} with avg walk {walkMean(rp, best)}')
+    grafico_distancia([i for i in range(nIter)], [walkMean(rp, s) for s in historic], nomeGraficoDistancia)
+    grafico_pontos([i for i in range(nIter)], [numberOfBusStops(s) for s in historic], nomeGraficoPontos)
 
-
-grasp(0, 10)
+grasp(1, 15, 'distancia1', 'pontos1')
+grasp(0.5, 15, 'distancia05', 'pontos05')
+grasp(0, 15, 'distancia0', 'pontos0')
